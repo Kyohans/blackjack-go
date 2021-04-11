@@ -1,1 +1,11 @@
-- Generate random number between [1, 11]
+✔️ Canary test
+✔️ Drawing card results in value of card being between [1, 11]
+✔️ User draws a card
+✔️ Initially drawing two cards does not result in a bust
+✔️ Don't draw card if current hand is a bust
+✔️ Evaluate an ace for a hand with value 11
+✔️ Evaluate an ace for a hand with value 10
+✔️ Allow user to draw at 17 but not dealer
+✔️ Player wins when dealer's hand busts (vice-versa)
+✔️ Round ends in a tie
+✔️ Dealer wins round
