@@ -5,7 +5,9 @@
 ✔️ Don't draw card if current hand is a bust
 ✔️ Evaluate an ace for a hand with value 11
 ✔️ Evaluate an ace for a hand with value 10
+✔️ Ace becomes a one if there is already an ace in player/dealer's hand
 ✔️ Allow user to draw at 17 but not dealer
 ✔️ Player wins when dealer's hand busts (vice-versa)
 ✔️ Round ends in a tie
 ✔️ Dealer wins round
+✔️ Confirm hand is emptied when scores are tallied

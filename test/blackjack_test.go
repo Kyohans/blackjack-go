@@ -8,8 +8,8 @@ import (
 )
 
 func setUp() (blackjack.Player, blackjack.Dealer) {
-	player := blackjack.Player{0, 0}
-	dealer := blackjack.Dealer{0, 0}
+	player := blackjack.Player{}
+	dealer := blackjack.Dealer{}
 
 	return player, dealer
 }
@@ -52,17 +52,36 @@ func TestNotDrawingIfHandIsABust(t *testing.T) {
 }
 
 func TestEvaluatingAceWithHandOf11(t *testing.T) {
-	assert.Equal(t, blackjack.EvaluateCard(11, 11), 12)
+	player, _ := setUp()
+
+	player.Cards = append(player.Cards, 11)
+	player.Cards = append(player.Cards, player.EvaluateCard(11))
+
+	assert.Equal(t, blackjack.GetHand(player.Cards), 12)
 }
 
 func TestEvaluatingAceWithHandOf10(t *testing.T) {
-	assert.Equal(t, blackjack.EvaluateCard(10, 11), 21)
+	player, _ := setUp()
+
+	player.Cards = append(player.Cards, 10)
+	player.Cards = append(player.Cards, player.EvaluateCard(11))
+
+	assert.Equal(t, blackjack.GetHand(player.Cards), 21)
+}
+
+func TestAceIsOneIfThereIsAlreadyAnAceInHand(t *testing.T) {
+	player, _ := setUp()
+
+	player.Cards = append(player.Cards, 11)
+
+	assert.Equal(t, player.EvaluateCard(11), 1)
 }
 
 func TestPlayerCanDrawAt17ButNotTheDealer(t *testing.T) {
 	player, dealer := setUp()
 
-	player.Hand, dealer.Hand = 17, 17
+	player.Hand, player.Cards = 17, append(player.Cards, 17)
+	dealer.Hand, dealer.Cards = 17, append(dealer.Cards, 17)
 
 	player.DrawCard()
 	dealer.DrawCard()
@@ -100,4 +119,19 @@ func TestDealerWinsRound(t *testing.T) {
 	blackjack.TallyScore(&player, &dealer)
 
 	assert.Greater(t, dealer.Score, player.Score)
+}
+
+func TestConfirmHandsAreEmptiedWhenScoresAreTallied(t *testing.T) {
+	player, dealer := setUp()
+
+	player.DrawCard()
+	dealer.DrawCard()
+
+	blackjack.TallyScore(&player, &dealer)
+
+	assert.Equal(t, len(player.Cards), 0)
+	assert.Equal(t, player.Hand, 0)
+
+	assert.Equal(t, len(dealer.Cards), 0)
+	assert.Equal(t, dealer.Hand, 0)
 }
