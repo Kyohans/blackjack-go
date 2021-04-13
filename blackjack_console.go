@@ -1,7 +1,7 @@
 package main
 
 import (
-	"blackjack/src"
+	"github.com/Kyohans/blackjack/src"
 	"fmt"
 	"time"
 )
@@ -30,10 +30,11 @@ func DrawCards() {
 func DealerTurn() {
 	defer DrawCards()
 
+	fmt.Printf("Dealer's second card is a %v\n", dealer.Cards[1])
 	for dealer.CanDraw() {
+		time.Sleep(time.Second)
 		dealer.DrawCard()
 		fmt.Printf("Dealer draws a %v\n", dealer.Cards[len(dealer.Cards) - 1])
-		time.Sleep(time.Second)
 	}
 
 	fmt.Printf("Dealer's hand: %v\n", blackjack.GetHand(dealer.Cards))
@@ -43,20 +44,20 @@ func DealerTurn() {
 func Play() {
 	DrawCards()
 
-	var c int
-	for c != 3 {
+	var choice int
+	for choice != 3 {
 		fmt.Println("\n\nScores")
-		fmt.Println("----------------")
+		fmt.Println("-----------------")
 		fmt.Printf("Player: %v\nDealer: %v", player.Score, dealer.Score)
 		fmt.Printf("\nPlayer Hand: %v", blackjack.GetHand(player.Cards))
 		fmt.Printf("\nDealer is showing a %v", dealer.Cards[0])
 
 		ShowMenu()
-		fmt.Scanf("%v", &c)
+		fmt.Scanf("%v", &choice)
 		fmt.Println()
 
 		switch {
-		case c == 1:
+		case choice == 1:
 			player.DrawCard()
 
 			if blackjack.GetHand(player.Cards) > 21 {
@@ -64,11 +65,11 @@ func Play() {
 				DealerTurn()
 			}
 
-		case c == 2:
+		case choice == 2:
 			time.Sleep(time.Second)
 			DealerTurn()
 
-		case c == 3:
+		case choice == 3:
 			fmt.Println("\nThanks for playing!")
 		}
 	}

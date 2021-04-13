@@ -1,7 +1,7 @@
 package blackjack_test
 
 import (
-	"blackjack/src"
+	"github.com/Kyohans/blackjack/src"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
