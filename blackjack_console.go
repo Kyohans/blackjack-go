@@ -1,10 +1,13 @@
 package main
 
 import (
-	blackjack "blackjack/src"
+	"blackjack/src"
 	"fmt"
 	"time"
 )
+
+var player blackjack.Player
+var dealer blackjack.Dealer
 
 func ShowMenu() {
 	fmt.Println("\n\nOptions")
@@ -13,17 +16,32 @@ func ShowMenu() {
 	fmt.Print("> ")
 }
 
-func DrawCards(player *blackjack.Player, dealer *blackjack.Dealer) {
-	fmt.Println("Drawing cards...")
+func DrawCards() {
+	fmt.Println("\nStarting a new round...")
+
 	for i := 0; i < 2; i++ {
 		player.DrawCard()
 		dealer.DrawCard()
 	}
-	time.Sleep(2 * time.Second)
+
+	time.Sleep(time.Second)
 }
 
-func PlayRound(player *blackjack.Player, dealer *blackjack.Dealer) {
-	DrawCards(player, dealer)
+func DealerTurn() {
+	defer DrawCards()
+
+	for dealer.CanDraw() {
+		dealer.DrawCard()
+		fmt.Printf("Dealer draws a %v\n", dealer.Cards[len(dealer.Cards) - 1])
+		time.Sleep(time.Second)
+	}
+
+	fmt.Printf("Dealer's hand: %v\n", blackjack.GetHand(dealer.Cards))
+	blackjack.TallyScore(&player, &dealer)
+}
+
+func Play() {
+	DrawCards()
 
 	var c int
 	for c != 3 {
@@ -31,6 +49,7 @@ func PlayRound(player *blackjack.Player, dealer *blackjack.Dealer) {
 		fmt.Println("----------------")
 		fmt.Printf("Player: %v\nDealer: %v", player.Score, dealer.Score)
 		fmt.Printf("\nPlayer Hand: %v", blackjack.GetHand(player.Cards))
+		fmt.Printf("\nDealer is showing a %v", dealer.Cards[0])
 
 		ShowMenu()
 		fmt.Scanf("%v", &c)
@@ -39,43 +58,31 @@ func PlayRound(player *blackjack.Player, dealer *blackjack.Dealer) {
 		switch {
 		case c == 1:
 			player.DrawCard()
-			if player.Hand > 21 {
-				fmt.Println("BUST!\n")
-				for dealer.CheckHand() {
-					dealer.DrawCard()
-					fmt.Println("Dealer draws...")
-					time.Sleep(time.Second)
-					fmt.Printf("Dealer hand: %v\n", blackjack.GetHand(dealer.Cards))
-				}
-				blackjack.TallyScore(player, dealer)
-				DrawCards(player, dealer)
-			}
-		case c == 2:
-			for dealer.CheckHand() {
-				dealer.DrawCard()
-				fmt.Println("Dealer draws...")
-				time.Sleep(time.Second)
-				fmt.Printf("Dealer hand: %v\n", blackjack.GetHand(dealer.Cards))
-			}
-			blackjack.TallyScore(player, dealer)
-			DrawCards(player, dealer)
-		case c == 3:
 
+			if blackjack.GetHand(player.Cards) > 21 {
+				fmt.Print("BUST!\n\n")
+				DealerTurn()
+			}
+
+		case c == 2:
+			time.Sleep(time.Second)
+			DealerTurn()
+
+		case c == 3:
+			fmt.Println("\nThanks for playing!")
 		}
 	}
 }
 
 func main() {
-	player := blackjack.Player{}
-	dealer := blackjack.Dealer{}
 
 	fmt.Println("-----------------------------")
 	fmt.Println("|         Blackjack          |")
 	fmt.Println("-----------------------------")
 
-	PlayRound(&player, &dealer)
+	Play()
 
 	fmt.Println("\nFinal Scores")
 	fmt.Println("-----------------")
-	fmt.Printf("Player: %v; Dealer: %v", player.Score, dealer.Score)
+	fmt.Printf("Player: %v \nDealer: %v", player.Score, dealer.Score)
 }

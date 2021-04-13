@@ -7,29 +7,26 @@ import (
 
 type Player struct {
 	Cards []int
-	Hand  int
 	Score int
 }
 
 type Dealer struct {
 	Cards []int
-	Hand  int
 	Score int
 }
 
 func (p *Player) DrawCard() {
-	if !p.CheckHand() {
+	if !p.CanDraw() {
 		return
 	}
 
 	rand.Seed(time.Now().UnixNano())
 
 	p.Cards = append(p.Cards, p.EvaluateCard(rand.Intn(12-1)+1))
-	p.Hand = GetHand(p.Cards)
 }
 
-func (p Player) CheckHand() bool {
-	if p.Hand >= 21 {
+func (p Player) CanDraw() bool {
+	if GetHand(p.Cards) >= 21 {
 		return false
 	}
 
@@ -37,7 +34,7 @@ func (p Player) CheckHand() bool {
 }
 
 func (p Player) EvaluateCard(card int) int {
-	if p.Hand >= 11 && card == 11 || FindAce(p.Cards) && card == 11 {
+	if GetHand(p.Cards) >= 11 && card == 11 || FindAce(p.Cards) && card == 11 {
 		return 1
 	} else {
 		return card
@@ -45,18 +42,17 @@ func (p Player) EvaluateCard(card int) int {
 }
 
 func (d *Dealer) DrawCard() {
-	if !d.CheckHand() {
+	if !d.CanDraw() {
 		return
 	}
 
 	rand.Seed(time.Now().UnixNano())
 
 	d.Cards = append(d.Cards, d.EvaluateCard(rand.Intn(12-1)+1))
-	d.Hand = GetHand(d.Cards)
 }
 
-func (d Dealer) CheckHand() bool {
-	if d.Hand >= 17 {
+func (d Dealer) CanDraw() bool {
+	if GetHand(d.Cards) >= 17 {
 		return false
 	}
 
@@ -64,7 +60,7 @@ func (d Dealer) CheckHand() bool {
 }
 
 func (d Dealer) EvaluateCard(card int) int {
-	if d.Hand >= 11 && card == 11 || FindAce(d.Cards) && card == 11 {
+	if GetHand(d.Cards) >= 11 && card == 11 || FindAce(d.Cards) && card == 11 {
 		return 1
 	} else {
 		return card
@@ -94,12 +90,12 @@ func GetHand(cards []int) int {
 func TallyScore(p *Player, d *Dealer) {
 	defer func(){
 		p.Cards, d.Cards = nil, nil
-		p.Hand, d.Hand = 0, 0
 	}()
 
-	if p.Hand > d.Hand && p.Hand <= 21 || d.Hand > 21 && p.Hand <= 21 {
+	playerCards, dealerCards := GetHand(p.Cards), GetHand(d.Cards)
+	if playerCards > dealerCards && playerCards <= 21 || dealerCards > 21 && playerCards <= 21 {
 		p.Score++
-	} else if p.Hand == d.Hand || p.Hand > 21 && d.Hand > 21 {
+	} else if playerCards == dealerCards || playerCards > 21 && dealerCards > 21 {
 		return
 	} else {
 		d.Score++
