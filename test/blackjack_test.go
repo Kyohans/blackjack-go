@@ -1,14 +1,15 @@
 package blackjack_test
 
 import (
-	"github.com/Kyohans/blackjack/src"
 	"testing"
+
+	blackjack "github.com/Kyohans/blackjack/src"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func setUp() (blackjack.Player, blackjack.Dealer) {
-	return blackjack.Player{}, blackjack.Dealer{}
+func setUp() (blackjack.Player, blackjack.Player) {
+	return blackjack.Player{}, blackjack.Player{Dealer: true}
 }
 
 func TestCanary(t *testing.T) {
@@ -20,7 +21,7 @@ func TestDrawCardIsBetween11And1(t *testing.T) {
 
 	player.DrawCard()
 
-	assert.LessOrEqual(t, blackjack.GetHand(player.Cards), 11, 1)
+	assert.LessOrEqual(t, player.Hand, 11, 1)
 }
 
 func TestPlayerDrawsACard(t *testing.T) {
@@ -28,7 +29,7 @@ func TestPlayerDrawsACard(t *testing.T) {
 
 	player.DrawCard()
 
-	assert.Greater(t, blackjack.GetHand(player.Cards), 0)
+	assert.Greater(t, player.Hand, 0)
 }
 
 func TestDrawingTwoCardsDoesntResultInBust(t *testing.T) {
@@ -37,7 +38,7 @@ func TestDrawingTwoCardsDoesntResultInBust(t *testing.T) {
 	player.DrawCard()
 	player.DrawCard()
 
-	assert.LessOrEqual(t, blackjack.GetHand(player.Cards), 21)
+	assert.LessOrEqual(t, player.Hand, 21)
 }
 
 func TestNotDrawingIfHandIsABust(t *testing.T) {
@@ -56,7 +57,7 @@ func TestEvaluatingAceWithHandOf11(t *testing.T) {
 	player.Cards = append(player.Cards, 11)
 	player.Cards = append(player.Cards, player.EvaluateCard(11))
 
-	assert.Equal(t, blackjack.GetHand(player.Cards), 12)
+	assert.Equal(t, player.Cards[0] + player.Cards[1], 12)
 }
 
 func TestEvaluatingAceWithHandOf10(t *testing.T) {
@@ -65,7 +66,7 @@ func TestEvaluatingAceWithHandOf10(t *testing.T) {
 	player.Cards = append(player.Cards, 10)
 	player.Cards = append(player.Cards, player.EvaluateCard(11))
 
-	assert.Equal(t, blackjack.GetHand(player.Cards), 21)
+	assert.Equal(t, player.Cards[0] + player.Cards[1], 21)
 }
 
 func TestAceIsOneIfThereIsAlreadyAnAceInHand(t *testing.T) {
@@ -79,21 +80,21 @@ func TestAceIsOneIfThereIsAlreadyAnAceInHand(t *testing.T) {
 func TestPlayerCanDrawAt17ButNotTheDealer(t *testing.T) {
 	player, dealer := setUp()
 
-	player.Cards = append(player.Cards, 17)
-	dealer.Cards = append(dealer.Cards, 17)
+	player.Cards, player.Hand = append(player.Cards, 17), 17
+	dealer.Cards, dealer.Hand = append(dealer.Cards, 17), 17
 
 	player.DrawCard()
 	dealer.DrawCard()
 
-	assert.GreaterOrEqual(t, blackjack.GetHand(player.Cards), 17)
+	assert.Greater(t, player.Hand, 17)
 
-	assert.Equal(t, blackjack.GetHand(dealer.Cards), 17)
+	assert.Equal(t, dealer.Hand, 17)
 }
 
 func TestPlayerWinsWhenDealerBusts(t *testing.T) {
 	player, dealer := setUp()
 
-	dealer.Cards = append(dealer.Cards, 22)
+	dealer.Cards, dealer.Hand = append(dealer.Cards, 22), 22
 
 	blackjack.TallyScore(&player, &dealer)
 
@@ -129,8 +130,8 @@ func TestConfirmHandsAreEmptiedWhenScoresAreTallied(t *testing.T) {
 	blackjack.TallyScore(&player, &dealer)
 
 	assert.Equal(t, len(player.Cards), 0)
-	assert.Equal(t, blackjack.GetHand(player.Cards), 0)
+	assert.Equal(t, player.Hand, 0)
 
 	assert.Equal(t, len(dealer.Cards), 0)
-	assert.Equal(t, blackjack.GetHand(dealer.Cards), 0)
+	assert.Equal(t, dealer.Hand, 0)
 }

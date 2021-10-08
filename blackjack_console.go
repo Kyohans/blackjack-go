@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/Kyohans/blackjack/src"
 	"fmt"
 	"time"
+
+	blackjack "github.com/Kyohans/blackjack/src"
 )
 
-var player blackjack.Player
-var dealer blackjack.Dealer
+var player = blackjack.Player{}
+var dealer = blackjack.Player{Dealer: true}
 
 func ShowMenu() {
 	fmt.Println("\n\nOptions")
@@ -37,7 +38,7 @@ func DealerTurn() {
 		fmt.Printf("Dealer draws a %v\n", dealer.Cards[len(dealer.Cards) - 1])
 	}
 
-	fmt.Printf("Dealer's hand: %v\n", blackjack.GetHand(dealer.Cards))
+	fmt.Printf("Dealer's hand: %v\n", dealer.Hand)
 	blackjack.TallyScore(&player, &dealer)
 }
 
@@ -49,7 +50,7 @@ func Play() {
 		fmt.Println("\n\nScores")
 		fmt.Println("-----------------")
 		fmt.Printf("Player: %v\nDealer: %v", player.Score, dealer.Score)
-		fmt.Printf("\nPlayer Hand: %v", blackjack.GetHand(player.Cards))
+		fmt.Printf("\nPlayer Hand: %v", player.Hand)
 		fmt.Printf("\nDealer is showing a %v", dealer.Cards[0])
 
 		ShowMenu()
@@ -60,7 +61,7 @@ func Play() {
 		case choice == 1:
 			player.DrawCard()
 
-			if blackjack.GetHand(player.Cards) > 21 {
+			if player.Hand > 21 {
 				fmt.Print("BUST!\n\n")
 				DealerTurn()
 			}
